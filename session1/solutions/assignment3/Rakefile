@@ -1,1 +1,15 @@
-# assignment 3 solution
+# assignment 3 solution by Alexandra Etush
+namespace :files do
+  desc 'Change files suffix from yaml to yml'
+  task :rename_yml, [:path] do |t, args|
+    #puts "path", args[:path]
+    my_folder = args[:path]
+    files = Dir.entries(my_folder).select {|f| !File.directory? f}
+    files_yaml = files.select {|f| File.extname(f)=='.yaml'}
+    puts files_yaml
+    cd(my_folder)
+    files_yaml.each do |filename|
+      mv(filename,filename.ext("yml"))
+    end
+  end
+end
