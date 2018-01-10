@@ -8,6 +8,7 @@ Write a rake task called "archive". the task will perform the following:
   1. A parameter called PATH - this parameter should tell rake where to perform the above actions (default ".").
   2. A parameter called EXCLUDE - This is a common separated list of suffixes that the task should ignore and NOT archive.
 =end
+#Ver2 - not workign - the PackeTask is running before the archive task
 require 'rake/packagetask'
 require 'rubygems'
 require 'active_support/all' #required for remove special symbols in archive file name **** run to install "gem install activesupport"
