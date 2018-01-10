@@ -1,1 +1,74 @@
 # assignment 4 solution
+=begin
+Write a rake task called "archive". the task will perform the following:
+- Archive all files in a specified path (default path is "." ) to "tar.gz".
+- The new archive name should be the "folder_name.tar.gz" (change all spaces,hyphens and other non word characters to "_")
+- The location of the "folder_name.tar.gz" file will be located at "<the folder path>/build/folder_name.tar.gz"
+- Task should receive two parameters:
+  1. A parameter called PATH - this parameter should tell rake where to perform the above actions (default ".").
+  2. A parameter called EXCLUDE - This is a common separated list of suffixes that the task should ignore and NOT archive.
+=end
+#Ver2 - not workign - the PackeTask is running before the archive task
+require 'rake/packagetask'
+require 'rubygems'
+require 'active_support/all' #required for remove special symbols in archive file name **** run to install "gem install activesupport"
+desc "task will archive files in given folder"
+task archive: [:all_prerequirements] do
+  puts "archive task"
+  task("package").execute
+end
+
+task :all_prerequirements do
+  puts "all_prerequirements"
+  if ENV.has_key?('PATH') && ENV.has_value?('PATH')
+    my_path = ENV['PATH']
+  else
+    my_path = "/home/user/rubytest/rake_home_ass1/example"
+  end
+  #if ENV.has_key?('EXCLUDE') && ENV.has_value?('EXCLUDE')
+    list_of_excludes = ENV['EXCLUDE'].split(",")
+  #else
+  #    abort("Provide list of extentions to exclude, for example, EXCLUDE=.tmp,.bkp")
+  #end
+  ENV['MY_ARCHIVE_PATH'] = my_path
+  #puts ENV['MY_ARCHIVE_PATH']
+  my_archive_name = my_path.split("/")[-1].parameterize.underscore
+  #puts my_archive_name
+  ENV['MY_ARCHIVE_NAME'] = my_archive_name
+  #puts ENV['MY_ARCHIVE_NAME']
+  # make folder to store archive file
+  cd(my_path)
+  rm_rf('build')
+  if Dir['build']== nil
+    mkdir('build')
+  end
+  files = FileList.new('*.*')
+  #puts "all files in folder:"
+  #puts files
+  list_of_excludes.each do |extantion_name|
+    files = files.reject {|f| File.extname(f)==extantion_name}
+  end
+  ###ENV['FILES_TO_ARCHIVE'] = files
+  #puts "print list of files to include to archive:"
+  #puts files
+  #puts "before invoke task"
+  #task("package").execute
+end
+
+Rake::PackageTask.new('test_arch', :noversion) do |p|
+#  Rake::PackageTask.new(ENV['MY_ARCHIVE_NAME'], :noversion) do |p|
+  puts "From package task"
+  puts ENV['MY_ARCHIVE_PATH']
+  p.need_tar_gz = true
+  p.package_dir = '/home/user/rubytest/rake_home_ass1/example/dist'
+  p.package_files = ['/home/user/rubytest/rake_home_ass1/test/1.txt','/home/user/rubytest/rake_home_ass1/test/2.txt']
+  #p.package_dir = '/home/user/rubytest/rake_home_ass1/test'
+  #p.package_dir = ENV['MY_ARCHIVE_PATH']
+  #p.package_files = ['/home/user/rubytest/rake_home_ass1/test/1.txt','/home/user/rubytest/rake_home_ass1/test/2.txt']
+  #p.package_files = ENV['FILES_TO_ARCHIVE']
+end
+
+
+#/home/user/rubytest/rake_home_ass1/test
+# make folder to store archive file
+#rake archive PATH=/home/user/rubytest/rake_home_ass1/test EXCLUDE=.tmp,.bkp
